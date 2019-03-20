@@ -4,8 +4,11 @@ https://accounts.spotify.com/authorize?client_id={your_client_id}&response_type=
 
 ### Details:
 {your_client_id} was given in initial app registration with Spotify
+
 {your_redirect_uri}  was configured in initial app registration with Spotify
+
 {permissions_scope} is how much permissions you will allow for this token-holder to interact with your Spotify account
+
 Ex.
 playlist-read-private playlist-modify-public playlist-modify-private
 
@@ -38,6 +41,6 @@ Make another call to 'https://accounts.spotify.com/api/token':
 
 
 ## Step 3:
-copy {your_authorization_code} in to "./in/access_token.txt" and run Driver.py
+copy {your_authorization_code} in to __"./in/access_token.txt"__ and run Driver.py
 1. Navigate to the root directory of repository
 2. Run python Driver.py {directory.of.access.token.fiile} {sportify.artist.id} {sportify.playlist.name}
