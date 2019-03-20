@@ -1,8 +1,10 @@
 ## Step 1:
-First, you will need to hit Spotify API to obtain an authorization_code:
+First, you will need to hit Spotify API to obtain an {authorization_code}:
+
 https://accounts.spotify.com/authorize?client_id={your_client_id}&response_type=code&redirect_uri={your_redirect_uri}&scope={permissions_scope}
 
 ### Details:
+#### Request parameters:
 {your_client_id} was given in initial app registration with Spotify
 
 {your_redirect_uri}  was configured in initial app registration with Spotify
@@ -14,14 +16,20 @@ playlist-read-private playlist-modify-public playlist-modify-private
 
 
 ## Step 2:
-use the code that follows your redirect uri in the address bar to get an access_token via Spotify API 'https://accounts.spotify.com/api/token'
-this code is {your_authorization_code}
-or SpottyWrapper.getAccessToken()
-### Header Fields:
+use the {code} that follows your redirect uri in the address bar to get an access_token via Spotify API 
+
+https://accounts.spotify.com/api/token
+
+This {code} is {your_authorization_code}.
+
+Alternatively, you can use the SpottyWrapper.getAccessToken function
+
+### Details
+#### Header Fields:
 - Authorization: Basic ({{client_id:client_secret}}).encodeBase64()
 	- {your_client_id}:{your_client_secret} in base64
 
-### Body Fields:
+#### Body Fields:
 - grant_type: authorization_code
 - redirect_uri: {your_redirect_uri}
 - code: {your_authorization_code}
