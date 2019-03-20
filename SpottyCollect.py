@@ -1,8 +1,6 @@
 import SpottyWrapper;
 import Constants;
 
-# in: list(track_uris)
-# out: string
 def jsonifyList(li: list[str]) -> str:
 	stringer = '{"uris":['
 	for ea in li:
@@ -10,8 +8,6 @@ def jsonifyList(li: list[str]) -> str:
 	stringer = stringer[:len(stringer)-1] + ']}'
 	return stringer
 
-# in: list[track_uris], string, string
-# out: success message?
 def addAllTracksToPlaylist(tracks: list[str], playlist_id: str, token: str):
 	size = len(tracks)
 	hundos = size//Constants.QUERY_LIMIT
@@ -32,21 +28,21 @@ def addAllTracksToPlaylist(tracks: list[str], playlist_id: str, token: str):
 def getAllAlbumsFromArtist(artist_id: str, offset: int, token: str, album_groups: str):
 	albums = {}
 	off = offset
-	resp_size = 50
-	while(resp_size == 50):
+	resp_size = Constants.RESPONSE_MAX_SIZE
+	while(resp_size == Constants.RESPONSE_MAX_SIZE):
 		items = {}
 		success = False
-		items, success = SpottyWrapper.getAlbumsByArtist(artist_id, token, album_groups, 50, off, Constants.MARKETS, Constants.ITEMS)
+		items, success = SpottyWrapper.getAlbumsByArtist(artist_id, token, album_groups, Constants.RESPONSE_MAX_SIZE, off, Constants.MARKETS, Constants.ITEMS)
 		if(not success):
 			return items, success
 		for item in items:
 			albums[item.get(Constants.ID)] = item.get(Constants.NAME)
 		resp_size = len(items)
-		off += 50
+		off += Constants.RESPONSE_MAX_SIZE
 	return albums, success
 
 # implement as needed
-def getAllTracksByArtistFromAlbums(artist_id: str, album_ids: dict, token: str):
+def getAllTracksByArtistFromAlbums(artist_id: str, albums: dict, token: str):
 	tracks = {}
 
 	# key=(album_id, album_name, is_explicit)

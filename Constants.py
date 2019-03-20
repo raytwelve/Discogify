@@ -15,8 +15,11 @@ ARTISTS = 'artists'
 
 # get_token
 AUTHORIZATION_CODE = 'authorization_code'
+
+#step 2
 ACCESS_TOKEN = 'access_token'
 REFRESH_TOKEN = 'refresh_token'
+
 CODE = 'code'
 
 
@@ -44,6 +47,7 @@ SEARCH_LIMIT = 50
 OFFSET = 0
 TOKEN_TYPE = {AUTHORIZATION_CODE: CODE, REFRESH_TOKEN: REFRESH_TOKEN}
 SUCCESS_CODES = [200, 201]
+RESPONSE_MAX_SIZE = 50
 
 
 MARKETS = 'US'
