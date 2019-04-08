@@ -52,4 +52,5 @@ RESPONSE_MAX_SIZE = 50
 
 MARKETS = 'US'
 ALBUM_GROUPS = 'album,single,appears_on,compilation'
+# ALBUM_GROUPS = 'appears_on,compilation'
 SCOPE = 'playlist-read-public playlist-read-private playlist-modify-public playlist-modify-private'

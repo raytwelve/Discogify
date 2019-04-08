@@ -1,6 +1,4 @@
-import SpottyWrapper
-import Constants
-import SpottyUtils
+import SpottyUtils, SpottyCollect, SpottyWrapper, Constants
 
 def main():
 	album_groups = Constants.ALBUM_GROUPS
@@ -10,19 +8,35 @@ def main():
 	return_field= Constants.ITEMS
 	token = SpottyUtils.loadString('in/access_token.txt')
 	artist_id = ''
+	playlistName = ''
 
-	albums, success = SpottyWrapper.getAlbumsByArtist(artist_id, token, album_groups, search_limit, offset, markets, return_field)
-	a_filtered, success = SpottyWrapper.filterAlbumsMetadata(albums, success)
-	SpottyUtils.saveJson('out/albums.txt', a_filtered)
+	albums, success = SpottyCollect.getAllAlbumsFromArtist(artist_id, offset, token, album_groups)
 
-	for a_id, a_title in a_filtered.items():
-		tracks, success = SpottyWrapper.getTracksByArtistFromAlbum(artist_id, a_id, token, Constants.SEARCH_LIMIT, Constants.MARKETS, return_field)
-		t_filtered, success = SpottyWrapper.filterTracksMetadata(tracks, success)
-		a_title = a_title.replace("/", "_").replace(":", "_")
-		outfilename = 'out/album_tracks/' + a_title + '__' + a_id + '.txt'
+	# save for later use; dont have to make API calls
+	SpottyUtils.sortFormatSaveAlbums('out/albums.txt', albums)
+	print("Saved the albums.")
+
+
+	a_tracks = dict()
+	for album_id, album_title in albums.items():
+		tracks, success = SpottyWrapper.getTracksByArtistFromAlbum(artist_id, album_id, token, Constants.SEARCH_LIMIT, Constants.MARKETS, return_field)
+		t_filtered, success = SpottyWrapper.filterTracksMetadata(artist_id, tracks, success)
+		a_tracks.update(t_filtered)
+
+		# save for later use; dont have to make API calls
+		album_title = album_title.replace("/", "_").replace(":", "_")
+		outfilename = 'out/album_tracks/' + album_title + '__' + album_id + '.txt'
 		SpottyUtils.saveJson(outfilename, t_filtered)
 
-	# load all tracks into one collection
+	SpottyUtils.saveJson('out/album_tracks/__album_tracks.txt', a_tracks)
+
+
+	output_filename = "out/tracks.txt"
+	list_of_songs = SpottyUtils.sortFormatSaveTracks(output_filename, a_tracks)
+	print("Saved the tracks.")
+
+	exit()
+
 	# filter duplicates, keep explicit version over clean version
 
 	# create new playlist

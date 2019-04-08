@@ -26,7 +26,12 @@ def getAlbumsByArtist(artist_id: str, token: str, album_groups: str, search_limi
 	Constants.HEADER_AUTHORIZATION : Constants.HEADER_BEARER + str(token)
 	}
 	body = {}
-	params = {Constants.PARAM_LIMIT : str(search_limit), Constants.PARAM_OFFSET : str(offset), Constants.PARAM_INCLUDE_GROUPS : album_groups, Constants.PARAM_MARKET : markets}
+	params = {
+	Constants.PARAM_LIMIT : str(search_limit), 
+	Constants.PARAM_OFFSET : str(offset), 
+	Constants.PARAM_INCLUDE_GROUPS : album_groups,
+	Constants.PARAM_MARKET : markets
+	}
 
 	items, success = SpottyUtils.getItemsFromRequest(Constants.GET, url, headers, body, params, return_field)
 	return items, success
@@ -48,9 +53,16 @@ def getTracksByArtistFromAlbum(artist_id: str, album_id: str, token: str, search
 	items, success = SpottyUtils.getItemsFromRequest(Constants.GET, url, headers, body, params, return_field)
 	return items, success
 
-def filterTracksMetadata(tracks: list, success: bool) -> (dict, bool):
+def filterTracksMetadata(artist_id: str, tracks: list, success: bool) -> (dict, bool):
+	if not success:
+		return {}, success
+
 	filtered = dict()
 	for track in tracks:
+		t_artists = track.get(Constants.ARTISTS)
+		if not isByArtist(artist_id, t_artists):
+			continue
+
 		t_id = track.get(Constants.ID)
 		t_duration = track.get(Constants.DURATION_MS)
 		t_explicit = track.get(Constants.EXPLICIT)
@@ -58,9 +70,15 @@ def filterTracksMetadata(tracks: list, success: bool) -> (dict, bool):
 		filtered[t_id] = [t_title, t_explicit, t_duration]
 	return filtered, success
 
+def isByArtist(artist_id: str, track_artists: list) -> bool:
+	for artist in track_artists:
+		if artist.get(Constants.ID) == artist_id:
+			return True
+	return False
+
 def filterAlbumsMetadata(albums: dict, success: bool) -> (dict, bool):
 	filtered = dict()
-	for album in albums:
+	for album in albums.items():
 		artists = album.get(Constants.ARTISTS) #list
 		for artist in artists:
 			filtered[album.get(Constants.ID)] = album.get(Constants.NAME)

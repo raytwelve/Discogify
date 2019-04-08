@@ -1,7 +1,19 @@
 import json
 import requests
+import base64
+import os, fnmatch
+
 import Constants
 import SpottyWrapper
+
+def getFiles(directory, ext):
+	listOfFiles = os.listdir(directory) 
+	pattern = "*" + ext
+	for entry in listOfFiles:  
+		if not fnmatch.fnmatch(entry, pattern):
+			listOfFiles.remove(entry)
+	return listOfFiles
+
 
 def failedExe(url: str, resp: requests.models.Response):
 	global user 
@@ -45,6 +57,57 @@ def loadString(filename: str) -> str:
 	with open(filename, 'r') as handle:
 		contents = handle.read()
 	return contents
+
+# load files from dir instead of getting from spotify API calls
+def loadAlbumTracks(basepath):
+	# {trackID: [title, explicit, duration]}
+	alltracks = dict()
+	filenames = getFiles(basepath, '.txt')
+	for filename in sorted(filenames):
+		tracks = loadJson(basepath + filename)
+		alltracks.update(tracks)
+	return alltracks
+
+
+def sortFormatSaveAlbums(output_filename, albums):
+	srt = sorted(albums.items(), key=lambda kv: kv[1])
+
+	printString = "{\n"
+	for i in range(len(srt)):
+		itm = srt[i]
+		a_id = "\"" + itm[0] + "\""
+		a_name = "\"" + itm[1] + "\""
+		printString += "    " + a_id + ": " + a_name + "," + "\n"
+
+	printString = printString[:-2] + "\n}"
+	saveString(output_filename, printString)
+	# list[tuple(str, str)]
+	# [(albumID, albumName)]
+	return srt
+
+# sort dictionary by track_titles
+# cannot return dict, as dict is unsorted
+def sortFormatSaveTracks(output_filename, tracks):
+	srt = sorted(tracks.items(), key=lambda kv: kv[1][0])
+
+	printString = "{\n"
+	for i in range(len(srt)):
+		itm = srt[i]
+		t_id = "\"" + itm[0] + "\""
+		t_meta = "[\"" + itm[1][0] + "\", " + str(itm[1][1]) + ", " + str(itm[1][2]) + "]"
+		printString += "    "+ t_id + ": " + t_meta + "," + "\n"
+
+	printString = printString[:-2] + "\n}"
+	saveString(output_filename, printString)
+	# list[tuple(str, list[str, bool, int])]
+	# [(titleID, [title, explicit, duration])]
+	return srt
+
+def stringToBase64(s: str):
+	return base64.b64encode(s.encode('utf-8'))
+
+def base64ToString(b):
+	return base64.b64decode(b).decode('utf-8')
 
 def jsonifyPairs(pairs: dict) -> str:
 	result = '{\n'
