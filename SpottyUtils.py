@@ -89,12 +89,14 @@ def sortFormatSaveAlbums(output_filename, albums):
 # cannot return dict, as dict is unsorted
 def sortFormatSaveTracks(output_filename, tracks):
 	srt = sorted(tracks.items(), key=lambda kv: kv[1][0])
+	if output_filename == None:
+		return srt
 
 	printString = "{\n"
 	for i in range(len(srt)):
 		itm = srt[i]
 		t_id = "\"" + itm[0] + "\""
-		t_meta = "[\"" + itm[1][0] + "\", " + str(itm[1][1]) + ", " + str(itm[1][2]) + "]"
+		t_meta = "[\"" + itm[1][0] + "\", " + str(itm[1][1]).lower() + ", " + str(itm[1][2]) + "]"
 		printString += "    "+ t_id + ": " + t_meta + "," + "\n"
 
 	printString = printString[:-2] + "\n}"
@@ -102,6 +104,7 @@ def sortFormatSaveTracks(output_filename, tracks):
 	# list[tuple(str, list[str, bool, int])]
 	# [(titleID, [title, explicit, duration])]
 	return srt
+
 
 def stringToBase64(s: str):
 	return base64.b64encode(s.encode('utf-8'))
@@ -111,7 +114,32 @@ def base64ToString(b):
 
 def jsonifyPairs(pairs: dict) -> str:
 	result = '{\n'
-	for k,v in pairs:
-		result = result + '    \"' + k+ '\": \"' + v + '\",\n'
+	for k,v in pairs.items():
+		result = result + '    \"' + k + '\": \"' + v + '\",\n'
 	result = result[0:-2]+ '\n}'
 	return result
+
+def jsonifyTracks(tracks: dict) -> str:
+	result = '{\n'
+	for k,v in tracks.items():
+		title = str(v[0])
+		ex = str(v[1]).lower()
+		dur = str(v[2])
+
+		result = result + '    \"' + k + '\": [\"' + title + '\", ' + ex + ', ' + dur + '],\n'
+	result = result[0:-2]+ '\n}'
+	return result
+
+def simpleWordMatch(a, b):
+	# aa = a.lower().replace('\'','').replace('"','').replace(',', '').rstrip(ascii.)
+	return a.lower() == b.lower()
+
+def titleMatch(a, b):
+	awords = a.split(" ", 3)
+	bwords = b.split(" ", 3)
+
+	match = True
+	for i in range(min(len(awords), len(bwords), 2)):
+		match = match and simpleWordMatch(awords[i], bwords[i])
+	return match
+

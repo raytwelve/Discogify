@@ -1,6 +1,6 @@
 import SpottyUtils, SpottyCollect, SpottyWrapper, Constants
 
-def main():
+def full_run():
 	album_groups = Constants.ALBUM_GROUPS
 	search_limit = Constants.SEARCH_LIMIT
 	offset = Constants.OFFSET
@@ -33,15 +33,78 @@ def main():
 
 	output_filename = "out/tracks.txt"
 	list_of_songs = SpottyUtils.sortFormatSaveTracks(output_filename, a_tracks)
-	print("Saved the tracks.")
+	input("Saved the tracks.")
 
-	exit()
-
-	# filter duplicates, keep explicit version over clean version
-
-	# create new playlist
-	# add filtered collection of track_ids to playlist
+	return list_of_songs
 
 
+def loadAllTracksFromFile(filename):
+	return SpottyUtils.sortFormatSaveTracks(None, SpottyUtils.loadJson(filename))
+
+
+
+def groupByTitles(tracks):
+	titlegroups = list()
+
+	first = ""
+	for i in range(len(tracks)):
+		track = tracks[i]
+		track_id = track[0]
+		track_meta = track[1]
+		title = track_meta[0]
+		if not SpottyUtils.titleMatch(first, title):
+			first = title
+			titlegroups.append(dict())
+		titlegroups[-1][track_id] = track_meta
+	return titlegroups
+
+
+
+def main():
+	filename = "out/album_tracks/__album_tracks.txt"
+	start_from_scratch  = False
+	list_of_songs = None
+
+	if start_from_scratch:
+		list_of_songs = full_run()
+	else:
+		list_of_songs = loadAllTracksFromFile(filename)
+
+
+	grouped = groupByTitles(list_of_songs)
+	print("grouped songs by title.")
+
+	for i in range(len(grouped)):
+		same_songs = grouped[i]
+		title = list(same_songs.values())[0][0]
+		title = title.replace("/", "_").replace(":", "_")
+		contents = SpottyUtils.jsonifyTracks(same_songs)
+		filename = 'out/duplicate_tracks/' + title + '.txt'
+		SpottyUtils.saveString(filename, contents)
 
 main()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
